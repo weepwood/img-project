@@ -156,13 +156,13 @@ function setActiveImage(index, list) {
 
   state.activeIndex = index;
   state.activeItem = item;
-  elements.previewImage.src = item.src;
+  elements.previewImage.src = item.thumbSrc || item.originalSrc || item.path;
   elements.previewImage.alt = item.alt;
   elements.metaFile.textContent = item.name;
   elements.metaFolder.textContent = item.album;
   elements.metaSize.textContent = formatBytes(item.size);
   elements.metaDimensions.textContent = 'Loading...';
-  elements.openLink.href = item.src;
+  elements.openLink.href = item.originalSrc || item.path;
 
   updateContentPanel(item, list);
 
@@ -170,7 +170,7 @@ function setActiveImage(index, list) {
   img.onload = () => {
     elements.metaDimensions.textContent = `${img.naturalWidth} × ${img.naturalHeight}`;
   };
-  img.src = item.src;
+  img.src = item.thumbSrc || item.originalSrc || item.path;
 
   elements.gallery.querySelectorAll('.card').forEach((card) => {
     card.classList.toggle('is-active', Number(card.dataset.index) === index);
@@ -222,7 +222,7 @@ function renderGallery(images) {
     card.setAttribute('aria-label', `Open ${item.name}`);
     card.innerHTML = `
       <figure>
-        <img data-src="${item.src}" alt="${item.alt}" loading="lazy" decoding="async" fetchpriority="low">
+        <img data-src="${item.thumbSrc || item.originalSrc || item.path}" alt="${item.alt}" loading="lazy" decoding="async" fetchpriority="low">
         <figcaption>
           <strong>${item.name}</strong>
           <span>${item.album}</span>
@@ -382,7 +382,7 @@ async function renderColorPanel(item) {
   elements.colorPalette.innerHTML = '';
 
   try {
-    const colors = await extractPalette(item.src);
+    const colors = await extractPalette(item.thumbSrc || item.originalSrc || item.path);
     if (state.activeItem !== item || state.activeTab !== 'colors') {
       return;
     }

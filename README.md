@@ -5,7 +5,8 @@ Static image gallery for GitHub Pages.
 ## How it works
 
 - Put images inside `imgs/` and any nested folders you want.
-- The build step scans `imgs/` recursively and creates `dist/images.json`.
+- The build step scans `imgs/` recursively, creates compressed thumbnails in `dist/thumbs/`, and writes `dist/images.json`.
+- The gallery loads thumbnails by default for faster page rendering, while the original file stays available through the "Open original" link.
 - GitHub Actions publishes the `dist/` folder to GitHub Pages on every push to `main`.
 
 ## Folder convention

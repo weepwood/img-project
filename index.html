@@ -31,10 +31,16 @@
       <section class="gallery-section">
         <div class="gallery-toolbar">
           <div class="view-label">Gallery</div>
-          <div class="view-icons" aria-hidden="true">
-            <span class="material-icons">apps</span>
-            <span class="material-icons">list</span>
-            <span class="material-icons">grid_view</span>
+          <div class="view-icons" role="toolbar" aria-label="Gallery layout">
+            <button type="button" class="view-button is-active" data-view="grid" aria-label="Compact grid view">
+              <span class="material-icons">apps</span>
+            </button>
+            <button type="button" class="view-button" data-view="list" aria-label="List view">
+              <span class="material-icons">list</span>
+            </button>
+            <button type="button" class="view-button" data-view="large" aria-label="Large image view">
+              <span class="material-icons">grid_view</span>
+            </button>
           </div>
         </div>
 
@@ -43,7 +49,7 @@
           <p>Try another search term or switch album.</p>
         </div>
 
-        <div id="gallery" class="gallery" aria-live="polite"></div>
+        <div id="gallery" class="gallery mode-grid" aria-live="polite"></div>
       </section>
 
       <aside class="inspector">
@@ -51,29 +57,66 @@
           <img id="previewImage" alt="Selected image preview" class="preview-image" />
         </div>
 
-        <div class="tab-row" aria-hidden="true">
-          <button type="button" class="tab active">Details</button>
-          <button type="button" class="tab">Content</button>
-          <button type="button" class="tab">Colors</button>
+        <div class="tab-row" role="tablist" aria-label="Image panels">
+          <button type="button" class="tab active" data-tab="details" aria-selected="true">Details</button>
+          <button type="button" class="tab" data-tab="content" aria-selected="false">Content</button>
+          <button type="button" class="tab" data-tab="colors" aria-selected="false">Colors</button>
         </div>
 
-        <div class="detail-list">
-          <div class="detail-item">
-            <h3>File Name</h3>
-            <p id="metaFile">-</p>
-          </div>
-          <div class="detail-item">
-            <h3>Source Folder</h3>
-            <p id="metaFolder">-</p>
-          </div>
-          <div class="detail-item">
-            <h3>Dimensions</h3>
-            <p id="metaDimensions">-</p>
-          </div>
-          <div class="detail-item">
-            <h3>Size</h3>
-            <p id="metaSize">-</p>
-          </div>
+        <div class="tab-panels">
+          <section id="detailsPanel" class="tab-panel">
+            <div class="detail-list">
+              <div class="detail-item">
+                <h3>File Name</h3>
+                <p id="metaFile">-</p>
+              </div>
+              <div class="detail-item">
+                <h3>Source Folder</h3>
+                <p id="metaFolder">-</p>
+              </div>
+              <div class="detail-item">
+                <h3>Dimensions</h3>
+                <p id="metaDimensions">-</p>
+              </div>
+              <div class="detail-item">
+                <h3>Size</h3>
+                <p id="metaSize">-</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="contentPanel" class="tab-panel hidden">
+            <div class="content-box">
+              <h3>Image Content</h3>
+              <p id="contentSummary">Select an image to inspect its file information.</p>
+            </div>
+            <div class="content-grid">
+              <div>
+                <span>Album</span>
+                <strong id="contentAlbum">-</strong>
+              </div>
+              <div>
+                <span>Path</span>
+                <strong id="contentPath">-</strong>
+              </div>
+              <div>
+                <span>Extension</span>
+                <strong id="contentExt">-</strong>
+              </div>
+              <div>
+                <span>View Mode</span>
+                <strong id="contentView">Grid</strong>
+              </div>
+            </div>
+          </section>
+
+          <section id="colorsPanel" class="tab-panel hidden">
+            <div class="content-box">
+              <h3>Dominant Colors</h3>
+              <p id="colorSummary">Select an image to generate a color palette.</p>
+            </div>
+            <div id="colorPalette" class="color-palette"></div>
+          </section>
         </div>
 
         <a id="openLink" class="open-link" href="#" target="_blank" rel="noreferrer">Open image</a>

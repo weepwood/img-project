@@ -53,7 +53,8 @@ const thumbnailObserver = 'IntersectionObserver' in window
         thumbnailObserver.unobserve(img);
       }
     }, {
-      rootMargin: '240px 0px',
+      root: null,
+      rootMargin: '0px',
       threshold: 0.01,
     })
   : null;
@@ -174,11 +175,6 @@ function setActiveImage(index, list) {
   elements.gallery.querySelectorAll('.card').forEach((card) => {
     card.classList.toggle('is-active', Number(card.dataset.index) === index);
   });
-
-  const activeThumb = elements.gallery.querySelector(`.card[data-index="${index}"] img`);
-  if (activeThumb && activeThumb.dataset.src && activeThumb.src !== activeThumb.dataset.src) {
-    activeThumb.src = activeThumb.dataset.src;
-  }
 
   if (state.activeTab === 'colors') {
     void renderColorPanel(item);

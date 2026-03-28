@@ -38,6 +38,26 @@ const elements = {
   colorPalette: document.getElementById('colorPalette'),
 };
 
+const thumbnailObserver = 'IntersectionObserver' in window
+  ? new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) {
+          continue;
+        }
+
+        const img = entry.target;
+        const src = img.dataset.src;
+        if (src && img.src !== src) {
+          img.src = src;
+        }
+        thumbnailObserver.unobserve(img);
+      }
+    }, {
+      rootMargin: '240px 0px',
+      threshold: 0.01,
+    })
+  : null;
+
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes)) {
     return '-';
@@ -155,6 +175,11 @@ function setActiveImage(index, list) {
     card.classList.toggle('is-active', Number(card.dataset.index) === index);
   });
 
+  const activeThumb = elements.gallery.querySelector(`.card[data-index="${index}"] img`);
+  if (activeThumb && activeThumb.dataset.src && activeThumb.src !== activeThumb.dataset.src) {
+    activeThumb.src = activeThumb.dataset.src;
+  }
+
   if (state.activeTab === 'colors') {
     void renderColorPanel(item);
   }
@@ -201,7 +226,7 @@ function renderGallery(images) {
     card.setAttribute('aria-label', `Open ${item.name}`);
     card.innerHTML = `
       <figure>
-        <img src="${item.src}" alt="${item.alt}">
+        <img data-src="${item.src}" alt="${item.alt}" loading="lazy" decoding="async" fetchpriority="low">
         <figcaption>
           <strong>${item.name}</strong>
           <span>${item.album}</span>
@@ -213,6 +238,19 @@ function renderGallery(images) {
   });
 
   elements.gallery.replaceChildren(fragment);
+  elements.gallery.querySelectorAll('img[data-src]').forEach((img, index) => {
+    if (index === state.activeIndex) {
+      img.src = img.dataset.src;
+      return;
+    }
+
+    if (thumbnailObserver) {
+      thumbnailObserver.observe(img);
+    } else {
+      img.src = img.dataset.src;
+    }
+  });
+
   elements.emptyState.classList.toggle('hidden', images.length !== 0);
   elements.galleryHint.textContent = images.length
     ? `${images.length} image${images.length === 1 ? '' : 's'} visible`
@@ -308,12 +346,11 @@ async function extractPalette(src) {
           .sort((a, b) => b.count - a.count)
           .filter((entry, index, array) => {
             const [r, g, b] = entry.rgb;
-            const isDistinct = array.slice(0, index).every((other) => {
+            return array.slice(0, index).every((other) => {
               const [or, og, ob] = other.rgb;
               const distance = Math.sqrt((r - or) ** 2 + (g - og) ** 2 + (b - ob) ** 2);
               return distance > 40;
             });
-            return isDistinct;
           })
           .slice(0, 5)
           .map((entry, index) => {
@@ -321,7 +358,7 @@ async function extractPalette(src) {
             return {
               hex: rgbToHex(r, g, b),
               rgb: `rgb(${r}, ${g}, ${b})`,
-              percentage: index === 0 ? 'Primary' : `Rank ${index + 1}`,
+              rank: index === 0 ? 'Primary' : `Rank ${index + 1}`,
             };
           });
 

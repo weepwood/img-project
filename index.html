@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A GitHub Pages gallery that automatically reads images from the imgs folder." />
+  <title>Photo Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h1 class="brand">Photo Library</h1>
+      <div class="search-wrap">
+        <input id="searchInput" class="search-input" type="search" placeholder="Search" autocomplete="off" />
+        <span class="material-icons search-icon">search</span>
+      </div>
+      <div class="sidebar-meta">
+        <span id="galleryHint">Loading images...</span>
+      </div>
+      <nav>
+        <ul id="albumList" class="album-list" aria-label="Albums"></ul>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section class="gallery-section">
+        <div class="gallery-toolbar">
+          <div class="view-label">Gallery</div>
+          <div class="view-icons" aria-hidden="true">
+            <span class="material-icons">apps</span>
+            <span class="material-icons">list</span>
+            <span class="material-icons">grid_view</span>
+          </div>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <h3>No matching images</h3>
+          <p>Try another search term or switch album.</p>
+        </div>
+
+        <div id="gallery" class="gallery" aria-live="polite"></div>
+      </section>
+
+      <aside class="inspector">
+        <div class="preview-wrap">
+          <img id="previewImage" alt="Selected image preview" class="preview-image" />
+        </div>
+
+        <div class="tab-row" aria-hidden="true">
+          <button type="button" class="tab active">Details</button>
+          <button type="button" class="tab">Content</button>
+          <button type="button" class="tab">Colors</button>
+        </div>
+
+        <div class="detail-list">
+          <div class="detail-item">
+            <h3>File Name</h3>
+            <p id="metaFile">-</p>
+          </div>
+          <div class="detail-item">
+            <h3>Source Folder</h3>
+            <p id="metaFolder">-</p>
+          </div>
+          <div class="detail-item">
+            <h3>Dimensions</h3>
+            <p id="metaDimensions">-</p>
+          </div>
+          <div class="detail-item">
+            <h3>Size</h3>
+            <p id="metaSize">-</p>
+          </div>
+        </div>
+
+        <a id="openLink" class="open-link" href="#" target="_blank" rel="noreferrer">Open image</a>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -3,12 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A GitHub Pages gallery that automatically reads images from the imgs folder." />
+  <meta name="description" content="A fast static image gallery with generated thumbnails and web previews." />
   <title>Photo Library</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -17,10 +13,10 @@
       <h1 class="brand">Photo Library</h1>
       <div class="search-wrap">
         <input id="searchInput" class="search-input" type="search" placeholder="Search" autocomplete="off" />
-        <span class="material-icons search-icon">search</span>
+        <span class="search-icon" aria-hidden="true">⌕</span>
       </div>
       <div class="sidebar-meta">
-        <span id="galleryHint">Loading images...</span>
+        <span id="galleryHint">Loading images…</span>
       </div>
       <nav>
         <ul id="albumList" class="album-list" aria-label="Albums"></ul>
@@ -32,15 +28,9 @@
         <div class="gallery-toolbar">
           <div class="view-label">Gallery</div>
           <div class="view-icons" role="toolbar" aria-label="Gallery layout">
-            <button type="button" class="view-button is-active" data-view="grid" aria-label="Compact grid view">
-              <span class="material-icons">apps</span>
-            </button>
-            <button type="button" class="view-button" data-view="list" aria-label="List view">
-              <span class="material-icons">list</span>
-            </button>
-            <button type="button" class="view-button" data-view="large" aria-label="Large image view">
-              <span class="material-icons">grid_view</span>
-            </button>
+            <button type="button" class="view-button is-active" data-view="grid" aria-label="Compact grid view" title="Compact grid">▦</button>
+            <button type="button" class="view-button" data-view="list" aria-label="List view" title="List">☷</button>
+            <button type="button" class="view-button" data-view="large" aria-label="Large image view" title="Large grid">▤</button>
           </div>
         </div>
 
@@ -53,9 +43,11 @@
       </section>
 
       <aside class="inspector">
-        <div class="preview-wrap">
+        <button id="previewButton" type="button" class="preview-button" aria-label="Open large image viewer" disabled>
           <img id="previewImage" alt="Selected image preview" class="preview-image" />
-        </div>
+          <span class="preview-hint">Click for large view</span>
+        </button>
+        <div id="previewStatus" class="preview-status" aria-live="polite">Select an image</div>
 
         <div class="tab-row" role="tablist" aria-label="Image panels">
           <button type="button" class="tab active" data-tab="details" aria-selected="true">Details</button>
@@ -66,22 +58,11 @@
         <div class="tab-panels">
           <section id="detailsPanel" class="tab-panel">
             <div class="detail-list">
-              <div class="detail-item">
-                <h3>File Name</h3>
-                <p id="metaFile">-</p>
-              </div>
-              <div class="detail-item">
-                <h3>Source Folder</h3>
-                <p id="metaFolder">-</p>
-              </div>
-              <div class="detail-item">
-                <h3>Dimensions</h3>
-                <p id="metaDimensions">-</p>
-              </div>
-              <div class="detail-item">
-                <h3>Size</h3>
-                <p id="metaSize">-</p>
-              </div>
+              <div class="detail-item"><h3>File Name</h3><p id="metaFile">-</p></div>
+              <div class="detail-item"><h3>Source Folder</h3><p id="metaFolder">-</p></div>
+              <div class="detail-item"><h3>Original Dimensions</h3><p id="metaDimensions">-</p></div>
+              <div class="detail-item"><h3>Original Size</h3><p id="metaSize">-</p></div>
+              <div class="detail-item"><h3>Web Preview Size</h3><p id="metaPreviewSize">-</p></div>
             </div>
           </section>
 
@@ -91,22 +72,10 @@
               <p id="contentSummary">Select an image to inspect its file information.</p>
             </div>
             <div class="content-grid">
-              <div>
-                <span>Album</span>
-                <strong id="contentAlbum">-</strong>
-              </div>
-              <div>
-                <span>Path</span>
-                <strong id="contentPath">-</strong>
-              </div>
-              <div>
-                <span>Extension</span>
-                <strong id="contentExt">-</strong>
-              </div>
-              <div>
-                <span>View Mode</span>
-                <strong id="contentView">Grid</strong>
-              </div>
+              <div><span>Album</span><strong id="contentAlbum">-</strong></div>
+              <div><span>Path</span><strong id="contentPath">-</strong></div>
+              <div><span>Extension</span><strong id="contentExt">-</strong></div>
+              <div><span>View Mode</span><strong id="contentView">Grid</strong></div>
             </div>
           </section>
 
@@ -119,9 +88,38 @@
           </section>
         </div>
 
-        <a id="openLink" class="open-link" href="#" target="_blank" rel="noreferrer">Open original</a>
+        <div class="action-row">
+          <button id="viewLargeButton" type="button" class="action-button primary" disabled>View large</button>
+          <a id="openLink" class="action-button secondary" href="#" target="_blank" rel="noreferrer">Download original</a>
+        </div>
       </aside>
     </main>
+  </div>
+
+  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="viewerTitle">
+    <div class="viewer-shell">
+      <header class="viewer-header">
+        <div class="viewer-heading">
+          <strong id="viewerTitle">Image preview</strong>
+          <span id="viewerMeta"></span>
+        </div>
+        <div class="viewer-actions">
+          <a id="viewerDownload" class="viewer-download" href="#" target="_blank" rel="noreferrer">Original</a>
+          <button id="viewerClose" type="button" class="viewer-close" aria-label="Close viewer">×</button>
+        </div>
+      </header>
+
+      <div class="viewer-stage">
+        <button id="viewerPrevious" type="button" class="viewer-nav previous" aria-label="Previous image">‹</button>
+        <img id="viewerImage" class="viewer-image" alt="Large image preview" />
+        <button id="viewerNext" type="button" class="viewer-nav next" aria-label="Next image">›</button>
+      </div>
+
+      <footer class="viewer-footer">
+        <span id="viewerStatus" aria-live="polite">Loading web preview…</span>
+        <span>Use ← → to navigate · Esc to close</span>
+      </footer>
+    </div>
   </div>
 
   <script type="module" src="./app.js"></script>
